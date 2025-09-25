@@ -1,6 +1,8 @@
 # --- imports ---
 import os
 import tempfile
+from dotenv import load_dotenv
+
 import streamlit as st
 import google.generativeai as gen_ai
 from streamlit_mic_recorder import mic_recorder
@@ -14,9 +16,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- API KEYS via secrets.toml ---
-GOOGLE_API_KEY = st.secrets.get("GOOGLE_API_KEY")
-ELEVEN_API_KEY = st.secrets.get("ELEVEN_API_KEY")
+load_dotenv(dotenv_path=".env")
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+ELEVEN_API_KEY = os.getenv("ELEVEN_API_KEY")
 
 # --- GLOBAL CSS (AgriBuddy Style) ---
 st.markdown("""
@@ -35,7 +37,7 @@ st.markdown("""
 
 # --- API KEYS CHECK ---
 if not GOOGLE_API_KEY or not ELEVEN_API_KEY:
-    st.error("API keys not found. Add GOOGLE_API_KEY and ELEVEN_API_KEY in `secrets.toml`")
+    st.error("API keys not found. Add GOOGLE_API_KEY and ELEVEN_API_KEY in `.env`")
     st.stop()
 
 # --- CACHE Gemini + ElevenLabs clients ---
@@ -78,9 +80,7 @@ with st.sidebar:
 
     with st.expander("⚙️ Settings", expanded=True):
         st.session_state.tts_enabled = st.toggle("Enable TTS", value=st.session_state.tts_enabled)
-        st.session_state.language = st.selectbox(
-            "Language", ["Malayalam", "English", "Hindi", "Spanish"], index=0
-        )
+        st.session_state.language = st.selectbox("Language", ["Malayalam", "English", "Hindi", "Spanish"], index=0)
         if st.button("Clear Chat History"):
             st.session_state.history = []
             st.rerun()
@@ -194,4 +194,3 @@ elif tab_choice == "Chat History":
                 st.markdown(f"**🧑 You:** {msg['text']}")
             else:
                 st.markdown(f"**🤖 AgriBuddy:** {msg['text']}")
-
