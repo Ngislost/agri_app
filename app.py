@@ -16,9 +16,26 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-load_dotenv(dotenv_path=".env")
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-ELEVEN_API_KEY = os.getenv("ELEVEN_API_KEY")
+try:
+    GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
+    ELEVEN_API_KEY = st.secrets["ELEVEN_API_KEY"]
+# If secrets aren't found, try to get them from a local .env file (for development)
+except:
+    print("Secrets not found on Streamlit Cloud, trying .env file...")
+    try:
+        load_dotenv(".env")
+        GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+        ELEVEN_API_KEY = os.getenv("ELEVEN_API_KEY")
+    except:
+        GOOGLE_API_KEY = None
+        ELEVEN_API_KEY = None
+
+# --- API KEYS CHECK ---
+if not GOOGLE_API_KEY or not ELEVEN_API_KEY:
+    st.error("API keys not found. Please add GOOGLE_API_KEY and ELEVEN_API_KEY to your Streamlit secrets or a local .env file.")
+    st.stop()
+
+### <<< CHANGE END >>>
 
 # --- GLOBAL CSS (AgriBuddy Style) ---
 st.markdown("""
